@@ -1,0 +1,116 @@
+/* Tag Filter Bar */
+#persona-tag-filter-bar {
+  padding: 5px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+/* Header row for toggle and filter input */
+#tag-filter-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+/* Filter input wrapper (inline with clear button) */
+.tag-filter-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+.tag-filter-input-wrapper input[type="text"] {
+  width: 100px;
+  padding: 3px;
+  font-size: 0.75em;
+}
+.tag-filter-input-wrapper .clear-filter {
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 0.75em;
+  padding: 2px;
+}
+
+/* Tag buttons in the filter bar – same styling as persona tag labels */
+#persona-tag-filter-bar .persona-tag-btn {
+  margin: 0 4px 4px 0;
+  padding: 2px 6px;
+  border: 1px solid #fff;
+  border-radius: 3px;
+  font-size: 0.75em;
+  cursor: pointer;
+}
+#persona-tag-filter-bar .persona-tag-btn.selected {
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+/* Toggle Button */
+#toggle-tag-filter {
+  padding: 3px 6px;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+/* Tag Labels on Persona Cards */
+.persona-tag-labels {
+  margin-top: 5px;
+}
+.persona-tag-label {
+  display: inline-block;
+  margin: 0 4px 4px 0;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75em;
+  border: 1px solid #fff;
+  cursor: pointer;
+}
+
+/* Persona Tag Management UI (in the Persona Description area) */
+#persona-tag-management {
+  margin-top: 15px;
+  padding: 5px;
+  border-top: 1px solid #ccc;
+}
+#persona-tag-management h4 {
+  margin: 5px 0;
+  font-size: 1em;
+  color: #333;
+}
+#assigned-tags-container,
+#available-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+#available-tags-container .global-tag-btn {
+  margin: 0 5px 5px 0;
+  padding: 2px 6px;
+  border: 1px solid #fff;
+  border-radius: 3px;
+  font-size: 0.75em;
+  cursor: pointer;
+}
+#available-tags-container .global-tag-btn.active {
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+#new-tag-div {
+  margin-top: 5px;
+}
+#new-tag-input {
+  padding: 3px;
+  font-size: 0.8em;
+  margin-right: 5px;
+}
+#new-tag-color {
+  padding: 3px;
+  font-size: 0.8em;
+  margin-right: 5px;
+}
+#add-tag-btn {
+  padding: 3px 6px;
+  font-size: 0.8em;
+  cursor: pointer;
+}
