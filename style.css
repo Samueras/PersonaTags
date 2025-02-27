@@ -1,12 +1,12 @@
 /* Tag Filter Bar */
 #persona-tag-filter-bar {
   padding: 5px;
-  background: #f0f0f0;
   border-bottom: 1px solid #ccc;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 10px;
+  /* Removed background color */
 }
 
 /* Header row for toggle and filter input */
@@ -32,6 +32,12 @@
   margin-left: 5px;
   font-size: 0.75em;
   padding: 2px;
+}
+
+/* All buttons should wrap text and size to content */
+.menu_button {
+  white-space: nowrap;
+  width: auto;
 }
 
 /* Tag buttons in the filter bar – same styling as persona tag labels */
@@ -103,6 +109,7 @@
   padding: 3px;
   font-size: 0.8em;
   margin-right: 5px;
+  border: 1px solid #ccc;
 }
 #new-tag-color {
   padding: 3px;
@@ -113,4 +120,14 @@
   padding: 3px 6px;
   font-size: 0.8em;
   cursor: pointer;
+}
+
+/* Remove background and 3D effect from input fields */
+.text_pole input[type="text"],
+.text_pole input[type="color"] {
+  background: none;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid #ccc;
+  outline: none;
 }

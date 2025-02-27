@@ -1,5 +1,5 @@
 // Persona Tags Extension
-// Version 1.0.26
+// Version 1.0.28
 // This extension injects a collapsible tag filter bar into the Persona Management panel,
 // displays assigned tag labels on each persona card (clicking a label toggles the filter),
 // and injects a "Persona Tag Management" UI into the Persona Description area.
@@ -7,7 +7,7 @@
 // Changes are persisted via SillyTavern.getContext().saveSettingsDebounced().
 
 (function(){
-  console.log("Persona Tags Extension v1.0.26 loaded");
+  console.log("Persona Tags Extension v1.0.28 loaded");
 
   // Get the SillyTavern context and persistence function.
   const STContext = SillyTavern.getContext();
@@ -93,7 +93,7 @@
     filterBar.id = "persona-tag-filter-bar";
 
     // Create header row that always displays the toggle button.
-    // When expanded, the header also shows the filter input field next to the toggle.
+    // When expanded, the header also shows the filter input field next to the toggle button.
     const headerRow = document.createElement("div");
     headerRow.id = "tag-filter-header";
     headerRow.style.display = "flex";
@@ -104,6 +104,7 @@
     const toggleBtn = document.createElement("button");
     toggleBtn.id = "toggle-tag-filter";
     toggleBtn.textContent = window.filterBarExpanded ? "Hide Tags" : "Show Tags";
+    toggleBtn.classList.add("menu_button", "interactable");
     toggleBtn.onclick = function(){
       window.filterBarExpanded = !window.filterBarExpanded;
       // Re-render entire filter bar to reflect new state.
@@ -112,10 +113,11 @@
     headerRow.appendChild(toggleBtn);
 
     // If tags are visible, add the filter input field next to the toggle button.
-    let tagContainer; // will be used in filterInput event listener
+    let tagContainer; // used in filterInput event listener
     if (window.filterBarExpanded) {
       const filterWrapper = document.createElement("div");
-      filterWrapper.className = "tag-filter-input-wrapper";
+      // Add both our existing class and the "text_pole" class.
+      filterWrapper.classList.add("tag-filter-input-wrapper", "text_pole");
       const filterInput = document.createElement("input");
       filterInput.type = "text";
       filterInput.placeholder = "Filter tags...";
@@ -158,7 +160,8 @@
       cleanupUnusedGlobalTags();
       settings.persona_tags.forEach(tag => {
         const btn = document.createElement("button");
-        btn.className = "persona-tag-btn";
+        // Preserve existing class and add menu_button interactable.
+        btn.classList.add("persona-tag-btn", "menu_button", "interactable");
         // Set the selected state if this tag is currently active.
         if (window.selectedPersonaFilterTags.includes(tag.id)) {
           btn.classList.add("selected");
@@ -307,6 +310,8 @@
       tagMgmtDiv.appendChild(availableContainer);
       const newTagDiv = document.createElement("div");
       newTagDiv.id = "new-tag-div";
+      // Add text_pole class to the div wrapping the input field.
+      newTagDiv.classList.add("text_pole");
       const newTagInput = document.createElement("input");
       newTagInput.id = "new-tag-input";
       newTagInput.placeholder = "New tag title";
@@ -319,6 +324,7 @@
       const addTagBtn = document.createElement("button");
       addTagBtn.id = "add-tag-btn";
       addTagBtn.textContent = "Add Tag";
+      addTagBtn.classList.add("menu_button", "interactable");
       addTagBtn.onclick = function(){
         const title = newTagInput.value.trim();
         const color = newTagColor.value || generateRandomContrastingColor();
@@ -377,7 +383,7 @@
     const availableContainer = tagMgmtDiv.querySelector("#available-tags-container");
     settings.persona_tags.forEach(tag => {
       const btn = document.createElement("button");
-      btn.className = "global-tag-btn";
+      btn.classList.add("global-tag-btn", "menu_button", "interactable");
       const usage = getTagUsageCount(tag.id);
       btn.textContent = `${tag.name} (${usage})`;
       btn.style.backgroundColor = tag.color;

@@ -1,7 +1,7 @@
 {
   "display_name": "Persona Tags",
   "author": "Samueras",
-  "version": "1.0.26",
+  "version": "1.0.28",
   "loading_order": 100,
   "js": "index.js",
   "css": "style.css",
