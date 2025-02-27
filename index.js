@@ -1,5 +1,5 @@
 // Persona Tags Extension
-// Version 1.0.28
+// Version 1.0.29
 // This extension injects a collapsible tag filter bar into the Persona Management panel,
 // displays assigned tag labels on each persona card (clicking a label toggles the filter),
 // and injects a "Persona Tag Management" UI into the Persona Description area.
@@ -7,7 +7,7 @@
 // Changes are persisted via SillyTavern.getContext().saveSettingsDebounced().
 
 (function(){
-  console.log("Persona Tags Extension v1.0.28 loaded");
+  console.log("Persona Tags Extension v1.0.29 loaded");
 
   // Get the SillyTavern context and persistence function.
   const STContext = SillyTavern.getContext();
@@ -34,6 +34,12 @@
   window.filterBarExpanded = window.filterBarExpanded || false;
   // Preserve the current filter input value globally.
   window.tagFilterValue = window.tagFilterValue || "";
+
+  // Utility to get the persona's unique ID.
+  // It tries to use the old "imgfile" attribute, falling back to "data-avatar-id" if needed.
+  function getPersonaId(card) {
+    return card.getAttribute("imgfile") || card.getAttribute("data-avatar-id");
+  }
 
   // -----------------------------
   // Color Utility Functions
@@ -116,13 +122,12 @@
     let tagContainer; // used in filterInput event listener
     if (window.filterBarExpanded) {
       const filterWrapper = document.createElement("div");
-      // Add both our existing class and the "text_pole" class.
       filterWrapper.classList.add("tag-filter-input-wrapper", "text_pole");
       const filterInput = document.createElement("input");
       filterInput.type = "text";
       filterInput.placeholder = "Filter tags...";
       filterInput.style.width = "100px"; // shorter input
-      filterInput.value = window.tagFilterValue; // restore previous value
+      filterInput.value = window.tagFilterValue;
       filterInput.addEventListener("input", function(){
         window.tagFilterValue = filterInput.value;
         const value = filterInput.value.toLowerCase();
@@ -160,9 +165,7 @@
       cleanupUnusedGlobalTags();
       settings.persona_tags.forEach(tag => {
         const btn = document.createElement("button");
-        // Preserve existing class and add menu_button interactable.
         btn.classList.add("persona-tag-btn", "menu_button", "interactable");
-        // Set the selected state if this tag is currently active.
         if (window.selectedPersonaFilterTags.includes(tag.id)) {
           btn.classList.add("selected");
         }
@@ -186,7 +189,6 @@
         };
         tagContainer.appendChild(btn);
       });
-      // After creating buttons, reapply any stored filter text.
       if (window.tagFilterValue) {
         const filterVal = window.tagFilterValue.toLowerCase();
         Array.from(tagContainer.children).forEach(btn => {
@@ -199,7 +201,6 @@
 
     target.parentNode.insertBefore(filterBar, target.nextSibling);
 
-    // If filter input exists and has value, restore focus.
     if (window.tagFilterValue && window.filterBarExpanded) {
       const filterInput = filterBar.querySelector("input[type='text']");
       if (filterInput) {
@@ -212,7 +213,7 @@
   function renderPersonaCards(){
     cleanupUnusedGlobalTags();
     document.querySelectorAll(".avatar-container.interactable").forEach(card => {
-      const personaId = card.getAttribute("imgfile");
+      const personaId = getPersonaId(card);
       const oldLabels = card.querySelector(".persona-tag-labels");
       if (oldLabels) oldLabels.remove();
 
@@ -229,7 +230,6 @@
           span.style.backgroundColor = tagObj.color;
           span.style.border = "1px solid #fff";
           span.style.cursor = "pointer";
-          // Toggle filter when clicking the tag label on a persona card.
           span.onclick = function(e){
             e.stopPropagation();
             if (window.selectedPersonaFilterTags.includes(tagObj.id)) {
@@ -268,7 +268,7 @@
       console.log("No persona selected for tag management.");
       return;
     }
-    const personaId = selectedCard.getAttribute("imgfile");
+    const personaId = getPersonaId(selectedCard);
     console.log("Rendering Tag Management UI for persona:", personaId);
 
     const descTextarea = document.getElementById("persona_description");
@@ -310,7 +310,6 @@
       tagMgmtDiv.appendChild(availableContainer);
       const newTagDiv = document.createElement("div");
       newTagDiv.id = "new-tag-div";
-      // Add text_pole class to the div wrapping the input field.
       newTagDiv.classList.add("text_pole");
       const newTagInput = document.createElement("input");
       newTagInput.id = "new-tag-input";
@@ -357,7 +356,6 @@
     const newTagInputField = tagMgmtDiv.querySelector("#new-tag-input");
     if (newTagInputField) newTagInputField.value = preservedInput;
     
-    // Populate Assigned Tags.
     const assignedContainer = tagMgmtDiv.querySelector("#assigned-tags-container");
     (settings.persona_tag_map[personaId] || []).forEach(tagId => {
       const tagObj = settings.persona_tags.find(t => t.id === tagId);
@@ -379,7 +377,6 @@
       }
     });
     
-    // Populate Available Global Tags.
     const availableContainer = tagMgmtDiv.querySelector("#available-tags-container");
     settings.persona_tags.forEach(tag => {
       const btn = document.createElement("button");
@@ -413,7 +410,7 @@
   function filterPersonas(){
     const selected = window.selectedPersonaFilterTags;
     document.querySelectorAll(".avatar-container.interactable").forEach(card => {
-      const personaId = card.getAttribute("imgfile");
+      const personaId = getPersonaId(card);
       const assigned = settings.persona_tag_map[personaId] || [];
       const matches = selected.every(tag => assigned.includes(tag));
       card.style.display = matches ? "" : "none";
