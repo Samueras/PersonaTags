@@ -1,5 +1,5 @@
 // Persona Tags Extension
-// Version 1.0.29
+// Version 1.0.31
 // This extension injects a collapsible tag filter bar into the Persona Management panel,
 // displays assigned tag labels on each persona card (clicking a label toggles the filter),
 // and injects a "Persona Tag Management" UI into the Persona Description area.
@@ -7,7 +7,7 @@
 // Changes are persisted via SillyTavern.getContext().saveSettingsDebounced().
 
 (function(){
-  console.log("Persona Tags Extension v1.0.29 loaded");
+  console.log("Persona Tags Extension v1.0.31 loaded");
 
   // Get the SillyTavern context and persistence function.
   const STContext = SillyTavern.getContext();
@@ -34,9 +34,10 @@
   window.filterBarExpanded = window.filterBarExpanded || false;
   // Preserve the current filter input value globally.
   window.tagFilterValue = window.tagFilterValue || "";
+  // Global flag to toggle random color mode; default to light colors.
+  window.useLightColors = (window.useLightColors === undefined) ? true : window.useLightColors;
 
   // Utility to get the persona's unique ID.
-  // It tries to use the old "imgfile" attribute, falling back to "data-avatar-id" if needed.
   function getPersonaId(card) {
     return card.getAttribute("imgfile") || card.getAttribute("data-avatar-id");
   }
@@ -77,6 +78,11 @@
     } while (brightness < 200);
     return color;
   }
+  // New helper to generate a random color based on current mode.
+  function generateRandomColor() {
+    return window.useLightColors ? generateRandomLightColor() : generateRandomDarkColor();
+  }
+  // Existing contrasting color function remains unchanged.
   function generateRandomContrastingColor() {
     const mainTextColor = (settings.power_user && settings.power_user.main_text_color) || "rgba(0, 0, 0, 1)";
     const rgb = parseColor(mainTextColor);
@@ -113,7 +119,6 @@
     toggleBtn.classList.add("menu_button", "interactable");
     toggleBtn.onclick = function(){
       window.filterBarExpanded = !window.filterBarExpanded;
-      // Re-render entire filter bar to reflect new state.
       renderTagFilterBar();
     };
     headerRow.appendChild(toggleBtn);
@@ -137,6 +142,12 @@
             btn.style.display = tagName.includes(value) ? "" : "none";
           });
         }
+      });
+      // Ensure proper focus on touch devices.
+      filterInput.addEventListener("touchstart", function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        filterInput.focus();
       });
       filterWrapper.appendChild(filterInput);
       const clearButton = document.createElement("span");
@@ -314,19 +325,41 @@
       const newTagInput = document.createElement("input");
       newTagInput.id = "new-tag-input";
       newTagInput.placeholder = "New tag title";
+      // Add listener for Enter key to add tag automatically.
+      newTagInput.addEventListener("keydown", function(e) {
+        if(e.key === "Enter") {
+          e.preventDefault();
+          addNewTag();
+        }
+      });
       newTagDiv.appendChild(newTagInput);
       const newTagColor = document.createElement("input");
       newTagColor.id = "new-tag-color";
       newTagColor.type = "color";
-      newTagColor.value = preservedColor || generateRandomContrastingColor();
+      newTagColor.value = preservedColor || generateRandomColor();
       newTagDiv.appendChild(newTagColor);
+      // New toggle color button, styled like the Add Tag button.
+      const toggleColorBtn = document.createElement("button");
+      toggleColorBtn.classList.add("menu_button", "interactable", "add-tag-btn");
+      toggleColorBtn.textContent = window.useLightColors ? "Light Colors" : "Dark Colors";
+      toggleColorBtn.onclick = function(){
+        window.useLightColors = !window.useLightColors;
+        toggleColorBtn.textContent = window.useLightColors ? "Light Colors" : "Dark Colors";
+        newTagColor.value = generateRandomColor();
+      };
+      newTagDiv.appendChild(toggleColorBtn);
       const addTagBtn = document.createElement("button");
-      addTagBtn.id = "add-tag-btn";
       addTagBtn.textContent = "Add Tag";
-      addTagBtn.classList.add("menu_button", "interactable");
-      addTagBtn.onclick = function(){
+      addTagBtn.classList.add("menu_button", "interactable", "add-tag-btn");
+      addTagBtn.onclick = addNewTag;
+      newTagDiv.appendChild(addTagBtn);
+      tagMgmtDiv.appendChild(newTagDiv);
+      descPanel.appendChild(tagMgmtDiv);
+
+      // Helper function to add new tag.
+      function addNewTag() {
         const title = newTagInput.value.trim();
-        const color = newTagColor.value || generateRandomContrastingColor();
+        const color = newTagColor.value || generateRandomColor();
         if (!title) return;
         const newId = "tag" + (settings.persona_tags.length + 1);
         const newTag = { id: newId, name: title, color: color };
@@ -344,14 +377,11 @@
         console.log("After saveSettingsDebounced after updating persona_tag_map");
 
         newTagInput.value = "";
-        newTagColor.value = generateRandomContrastingColor();
+        newTagColor.value = generateRandomColor();
         renderPersonaTagManagementUI();
         renderTagFilterBar();
         renderPersonaCards();
-      };
-      newTagDiv.appendChild(addTagBtn);
-      tagMgmtDiv.appendChild(newTagDiv);
-      descPanel.appendChild(tagMgmtDiv);
+      }
     }
     const newTagInputField = tagMgmtDiv.querySelector("#new-tag-input");
     if (newTagInputField) newTagInputField.value = preservedInput;
